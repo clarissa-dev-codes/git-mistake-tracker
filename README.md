@@ -1,71 +1,44 @@
-# git-mistake-tracker README
+# Git Mistake Tracker
 
-This is the README for your extension "git-mistake-tracker". After writing up a brief description, we recommend including the following sections.
+Git Mistake Tracker is a high-performance developer utility that brings granular line-level Git author history and instant bug reporting directly into your workspace. By parsing local Git blame metadata asynchronously, it highlights context details seamlessly without disrupting your coding flow.
 
-## Features
+## Core Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+* **Real-Time Status Bar Feedback:** Instantly displays the author name and the short commit summary of the active line in the bottom right corner of the window as you navigate through code files.
+* **Rich Metadata Hovers:** Pausing over a committed line reveals a structured Markdown tooltip detailing the absolute author name, full commit summary, and specific commit hash.
+* **Instant GitHub Issue Generation:** Injects a dynamic, secure action link directly inside the hover card. Clicking the link parses your real-world repository origin configuration (both HTTPS and SSH configurations supported) and opens a pre-filled GitHub Issue form in your default browser, tagging the author and formatting the targeted code snippet within an isolated block.
 
-For example if there is an image subfolder under your extension project workspace:
+## How It Works
 
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
-
-## Requirements
-
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+The extension operates with a defensive architecture to protect system performance:
+1. It listens to selection adjustments via the workspace environment.
+2. It queries local Git porcelain configurations asynchronously within the native file directory layout.
+3. It sanitizes uncommitted workspaces safely, keeping system popups hidden until code changes are actively committed.
 
 ## Extension Settings
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+This extension currently requires zero configuration out of the box. It will automatically activate whenever files belonging to supported languages are loaded into an active workspace initialized with a valid Git origin pointing to a GitHub host.
 
-For example:
+## Supported Languages
 
-This extension contributes the following settings:
+* JavaScript
+* TypeScript
+* Python
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+## Extension Commands
 
-## Known Issues
+This extension contributes the following commands to the command palette and active interface layers:
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+* `git-mistake-tracker.openIssue`: Validates repository origin configurations and constructs native browser requests to create target issue templates dynamically.
+
+## Installation Requirements
+
+* Local installation of Git (accessible via your system environment PATH).
+* Active workspace repositories must have an active remote origin configured pointing to a valid GitHub repository link.
 
 ## Release Notes
 
-Users appreciate release notes as you update your extension.
-
 ### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
----
-
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
-
-## For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+* Initial production release.
+* Implemented background asynchronous Git blame execution loops.
+* Integrated responsive Status Bar indicators and secure dynamic Hover template links.
