@@ -2,7 +2,7 @@
   "name": "git-mistake-tracker",
   "displayName": "git-mistake-tracker",
   "description": "Tracks down git line authors and errors",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "icon": "icon.png",
   "publisher": "clarissa-dev-codes",
   "engines": {

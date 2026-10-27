@@ -81,51 +81,60 @@ export function activate(context: vscode.ExtensionContext){
 	);
 	context.subscriptions.push(issueCommand);
 
-	const hoverProvider = vscode.languages.registerHoverProvider(
-		{scheme: 'file'},
-		{
-			provideHover(document, position){
-				return new Promise((resolve) => {
-					const line = position.line + 1;
-					const filePath = document.fileName;
-					const fileName = path.basename(filePath);
-					const fileDir = path.dirname(filePath);
-					const lineContent = document.lineAt(position.line).text;
+	    // 2. REGISTER THE REAL-TIME HOVER METADATA PROVIDER
+    const hoverProvider = vscode.languages.registerHoverProvider(
+        { scheme: 'file' },
+        {
+            provideHover(document, position) {
+                return new Promise((resolve) => {
+                    const line = position.line + 1;
+                    const filePath = document.fileName;
+                    const fileName = path.basename(filePath);
+                    const fileDir = path.dirname(filePath);
+                    const lineContent = document.lineAt(position.line).text;
 
-					exec(`git blame -L ${line},${line} --porcelain "${filePath}"`, {cwd:fileDir}, (error, stdout) => {
-						if(error || !stdout){
-							return resolve(null);
-						}
+                    exec(`git blame -L ${line},${line} --porcelain "${filePath}"`, { cwd: fileDir }, (error, stdout) => {
+                        // If it's a brand-new file or not tracked by Git, safely ignore it
+                        if (error || !stdout) { return resolve(null); }
 
-						const author = stdout.match(/^author (.+)\$/m)?.[1] || 'Unknown';
-						const summary = stdout.match(/^summary (.+)\$/m)?.[1] || '';
-						const hash = stdout.split('\n')[0].split(' ')[0].substring(0, 8);
+                        // Robust parsing to catch properties regardless of whitespace differences
+                        const authorMatch = stdout.match(/^author\s+(.+)$/m);
+                        const summaryMatch = stdout.match(/^summary\s+(.+)$/m);
+                        
+                        // Extract the first 8 characters of the very first line (the commit hash)
+                        const rawHash = stdout.split('\n')[0].split(' ')[0];
+                        const hash = rawHash ? rawHash.substring(0, 8) : 'unknown';
 
-						if(hash.startsWith('00000000')){
-							return resolve(null);
-						}
+                        const author = authorMatch ? authorMatch[1] : 'Unknown';
+                        const summary = summaryMatch ? summaryMatch[1] : 'Uncommitted changes';
 
-						const markdown = new vscode.MarkdownString();
-						markdown.isTrusted = true;
+                        // Prevent presenting info if it's a completely uncommitted empty state
+                        if (hash.startsWith('00000000')) { return resolve(null); }
 
-						markdown.appendMarkdown(`### Git Mistake Tracker\n\n`);
-						markdown.appendMarkdown(`**Author:** ${author} \n\n`);
-						markdown.appendMarkdown(`**Commit Summary:** _${summary}_ \n\n`);
-						markdown.appendMarkdown(`**Commit Hash:** \`\${hash}\` \n\n`);
-						markdown.appendMarkdown(`---\n\n`);
+                        const markdown = new vscode.MarkdownString();
+                        markdown.isTrusted = true; // Essential setting to permit execution triggers inside popups
+                        
+                        // Build the text segments line-by-line to avoid string template syntax breaks
+                        markdown.appendMarkdown(`### Git Mistake Tracker\n\n`);
+                        markdown.appendMarkdown(`**Author:** ` + author + `\n\n`);
+                        markdown.appendMarkdown(`**Commit Summary:** _` + summary + `_\n\n`);
+                        markdown.appendMarkdown(`**Commit Hash:** \`` + hash + `\`\n\n`);
+                        markdown.appendMarkdown(`---\n\n`);
+                        
+                        // Pass down file directory context dynamically so the launcher can scan git settings later
+                        const commandArgs = encodeURIComponent(JSON.stringify({ author, summary, hash, lineContent, fileName, fileDir }));
+                        const stageIssueCommandUri = `command:git-mistake-tracker.openIssue?${commandArgs}`;
+                        
+                        markdown.appendMarkdown(`[Report This Line as an Issue](` + stageIssueCommandUri + `)`);
+                        
+                        resolve(new vscode.Hover(markdown));
+                    });
+                });
+            }
+        }
+    );
+    context.subscriptions.push(hoverProvider);
 
-						const commandArgs = encodeURIComponent(JSON.stringify({author, summary, hash, lineContent, fileName, fileDir}));
-						const stageIssueCommandUri = `command.git-mistake-tracker.openIssue?${commandArgs}`;
-
-						markdown.appendMarkdown(`[Report This Line as an Issue](${stageIssueCommandUri})`);
-
-						resolve(new vscode.Hover(markdown));
-					});
-					
-				});
-			}
-		}
-	);
 	context.subscriptions.push(hoverProvider);
 }
 
