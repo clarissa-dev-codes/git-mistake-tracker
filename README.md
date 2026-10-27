@@ -13,7 +13,8 @@ Git Mistake Tracker is a high-performance developer utility that brings granular
 The extension operates with a defensive architecture to protect system performance:
 1. It listens to selection adjustments via the workspace environment.
 2. It queries local Git porcelain configurations asynchronously within the native file directory layout.
-3. It sanitizes uncommitted workspaces safely, keeping system popups hidden until code changes are actively committed.
+3. It simplifies template rendering parameters to avoid syntax interpolation failures inside nested Markdown cards.
+4. It sanitizes uncommitted workspaces safely, keeping system popups hidden until code changes are actively committed.
 
 ## Extension Settings
 
@@ -42,3 +43,8 @@ This extension contributes the following commands to the command palette and act
 * Initial production release.
 * Implemented background asynchronous Git blame execution loops.
 * Integrated responsive Status Bar indicators and secure dynamic Hover template links.
+
+### 1.0.1
+* Fixed an issue where the hover tooltip components incorrectly displayed template interpolation placeholders instead of literal evaluation values.
+* Refactored string aggregation mechanisms to prevent rendering syntax failures inside the Markdown presentation layout.
+* Enhanced raw text parsing regex performance to guarantee more resilient commit summary metadata extraction on localized environments.
