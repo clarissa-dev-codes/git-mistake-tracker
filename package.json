@@ -3,13 +3,15 @@
   "displayName": "git-mistake-tracker",
   "description": "Tracks down git line authors and errors",
   "version": "1.0.0",
+  "icon": "icon.png",
   "publisher": "clarissa-dev-codes",
   "engines": {
     "vscode": "^1.140.0"
   },
   "categories": [
-    "Source Control",
-    "Productivity"
+    "Other",
+    "Testing",
+    "Debuggers"
   ],
   "activationEvents": [
     "onLanguage:javascript",
